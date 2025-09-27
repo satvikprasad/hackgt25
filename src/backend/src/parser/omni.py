@@ -13,7 +13,7 @@ load_dotenv(f'{os.path.dirname(os.path.realpath(__file__))}/../../../../.env')
 
 from util.utils import get_som_labeled_img, check_ocr_box, get_caption_model_processor, get_yolo_model
 from ultralytics import YOLO
-from PIL import Image
+from PIL import Image, ImageOps
 from PIL.Image import Image as TImage
 
 import matplotlib.pyplot as plt
@@ -42,6 +42,7 @@ class Omni:
         top = ((quadrant - 1) // 3) * image.height/3
 
         quad_im = image.crop((left, top, left + image.width/3, top + image.height/3)).convert("RGB")
+        quad_im = ImageOps.expand(quad_im, border=50, fill=(0, 0, 0))
 
         box_overlay_ratio = max(image.size) / 3200
         draw_bbox_config = {
@@ -70,8 +71,10 @@ class Omni:
 
     def detect_box(self, image: TImage, label_coordinates, offset: tuple[int, int], original_dim: tuple[int, int], object: str) -> tuple[int, int]:
         prompt = f"""
-        This is an image showing a portion of the user's desktop, with relevant interactable buttons outlined and labelled with their ids. The label for a bounding box is located above the bounding box, in the same color as the border. Your job is to identify which one of these bounding boxes contains {object}. Respond with a single number, which should be the correct bounding box's id. Your response should only be a single number, or 'null' if you fail.
+        This is an image showing a portion of the user's desktop, with relevant interactable buttons outlined and labelled with their ids. The label for a bounding box is located above the bounding box, in the same color as the border. Your job is to identify which one of these bounding boxes contains {object}. Respond with a single number, which should be the correct bounding box's id. Your response should only be a single number. You are not allowed to fail.
         """
+
+        print(prompt)
 
         buffered = BytesIO()
         image.save(buffered, format="JPEG")
@@ -95,6 +98,8 @@ class Omni:
             }]
         )
 
+        print(response.output)
+
         box = '1'
 
         for elem in response.output:
@@ -102,17 +107,21 @@ class Omni:
                 box = elem.content[0].text
                 break
 
+        print(box)
+
         x, y, width, height = label_coordinates[box]
         screen_width, screen_height = pyautogui.size()
 
-        screen_coord = ((x + width/2)*image.width + offset[0], (y + height/2)*image.height + offset[1])
+        screen_coord = ((x + width/2)*image.width - 50 + offset[0], (y + height/2)*image.height - 50 + offset[1])
         screen_coord = (screen_coord[0]/original_dim[0] * screen_width, screen_coord[1]/original_dim[1] * screen_height)
+
+        pyautogui.moveTo(screen_coord[0], screen_coord[1], 3)
 
         return screen_coord
 
-    def infer_coords(self, image: TImage, quadrant: int, object: str) -> tuple[int, int]:
+    def infer_coords(self, image: TImage, quadrant: int, entity: str) -> tuple[int, int]:
         image, labels, offset, dims = omni.gen_boxes(image, quadrant)
-        return omni.detect_box(image, labels, offset, dims, "Google previous page button")
+        return omni.detect_box(image, labels, offset, dims, entity)
 
 omni = Omni()
-print(omni.infer_coords(pyautogui.screenshot(), 3, "Apple control center icon in menubar"))
+print(omni.infer_coords(pyautogui.screenshot(), 3, "Control center icon, positioned to the left of the dates, looks like two stacked toggles."))
