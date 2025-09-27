@@ -16,6 +16,9 @@ from ultralytics import YOLO
 from PIL import Image, ImageOps
 from PIL.Image import Image as TImage
 
+import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 
 from openai import OpenAI
@@ -36,8 +39,6 @@ class Omni:
 
 
     def gen_boxes(self, image: TImage, quadrant: int) -> tuple[TImage, dict[str, tuple[float, float, float, float]], tuple[int, int], tuple[int, int]]:
-        print(image.size)
-
         left = ((quadrant - 1) % 3) * image.width/3
         top = ((quadrant - 1) // 3) * image.height/3
 
@@ -59,10 +60,8 @@ class Omni:
         dino_labled_img, label_coordinates, parsed_content_list = get_som_labeled_img(quad_im, self.som_model, BOX_TRESHOLD = BOX_TRESHOLD, output_coord_in_ratio=True, ocr_bbox=ocr_bbox,draw_bbox_config=draw_bbox_config, caption_model_processor=self.caption_model_processor, ocr_text=text,use_local_semantics=False, iou_threshold=0.7, scale_img=False, batch_size=128)
 
         plt.figure(figsize=(15,15))
-
         image_boxed = Image.open(io.BytesIO(base64.b64decode(dino_labled_img)))
         plt.axis('off')
-
         plt.imshow(image_boxed)
 
         return image_boxed, label_coordinates, (int(left), int(top)), (image.width, image.height)
@@ -71,8 +70,6 @@ class Omni:
         prompt = f"""
         This is an image showing a portion of the user's desktop, with relevant interactable buttons outlined and labelled with their ids. The label for a bounding box is located above the bounding box, in the same color as the border. Your job is to identify which one of these bounding boxes contains {object}. Respond with a single number, which should be the correct bounding box's id. Your response should only be a single number. You are not allowed to fail.
         """
-
-        print(prompt)
 
         buffered = BytesIO()
         image.save(buffered, format="JPEG")
@@ -96,16 +93,12 @@ class Omni:
             }]
         )
 
-        print(response.output)
-
         box = '1'
 
         for elem in response.output:
             if (elem.type == "message"):
                 box = elem.content[0].text
                 break
-
-        print(box)
 
         x, y, width, height = label_coordinates[box]
         screen_width, screen_height = pyautogui.size()
