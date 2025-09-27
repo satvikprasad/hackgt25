@@ -1,3 +1,4 @@
 Flask>=2.2,<3
-# If you need exact pinned versions from your venv, run:
-# pip freeze > src/backend/requirements.txt
+pillow
+pyautogui
+requests
