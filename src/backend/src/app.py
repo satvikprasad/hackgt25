@@ -6,6 +6,7 @@ from parser.parser import parse_response, code_please, GUIClient
 
 import gevent
 
+
 stop_query = threading.Event()
 
 def create_app() -> Flask:
@@ -15,7 +16,9 @@ def create_app() -> Flask:
     return app
 
 app = create_app()
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173"])
+
+
 
 # SocketIO setup
 @socketio.on('connect')
