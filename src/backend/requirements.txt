@@ -7,3 +7,4 @@ openai>=1.55.3
 python-dotenv
 gevent
 gevent-websocket
+pytesseract

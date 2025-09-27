@@ -19,6 +19,12 @@ This is a command designed to help you move the cursor to a specified object. Th
 “Google page refresh button to the left of search bar, shown as a circular arrow bent clockwise with a pointed arrowhead, outlined in dark gray on a light background”
 “Spotify icon in taskbar, represented as a bright green circle with three curved black lines stacked inside, resembling radio waves, all centered against the circular green background”
 
+# TEXT_MOVE {quadrant} {text}
+This is a command designed to help you move the cursor to a specified location of text. The first argument is the number/id of the quadrant that the text is situated in.
+{text} MUST be a SINGULAR word. Choose the word carefully so that it isn't commonly appeared in the screenshot. For example, do not choose words like "a" or "and", which can appear multiple tiems.
+For example, if you were disabling "Do not disturb", a good choice would be "disturb" as it is not repeated in the screenshot.
+
+
 # MOUSE_DOWN {key} Press the mouse down. {key} can take on either “LEFT” or “RIGHT
 # MOUSE_UP {key}
 Lift the mouse up. {key} can take on either “LEFT” or “RIGHT”
@@ -47,12 +53,12 @@ Once you have finished everything with, call this command to stop control. Inser
 # REASSESS {message}
 If you need to see a new screen (maybe after clicking a button that will take you to another page), call this command to reassess and gain more information. Remember that if instead you have finished your task and you do not need to continue, call COMPLETE instead. Include a message to tell yourself what to do next.
 
-Here is some more information:
+Here are rules YOU MUST FOLLOW:
 1. Every set of commands must have ONLY ONE of “STOP”, “COMPLETE”, OR “REASSESS”.
 2. Additionally, every set of commands must END with "STOP", "COMPLETE", or "REASSESS"
 3. Also, make sure you are REASSESSing often. Usually after traversing to a new site or clicking a button. End a command set after a REASSESS
 4. Do not use OSASCRIPT
-5. Prioritize using keyboard shortcuts over REQUEST_MOVE
+5. PRIORITIZE the use of KEYBOARD SHORTCUTS. Then, when you need to click, PRIORITIZE the use of TEXT_MOVE. !!ONLY USE REQUEST_MOVE WHEN ABSOLUTELY NECESSARY!!
 
 
 

@@ -75,9 +75,11 @@ input:focus::placeholder {
 .dots-overlay .dot:nth-child(1) {
   animation-delay: 0s;
 }
+
 .dots-overlay .dot:nth-child(2) {
   animation-delay: 0.12s;
 }
+
 .dots-overlay .dot:nth-child(3) {
   animation-delay: 0.24s;
 }
@@ -85,4 +87,39 @@ input:focus::placeholder {
 @keyframes bounce {
   0%, 100% { transform: translateY(0); opacity: 0.9 }
   50% { transform: translateY(-6px); opacity: 1 }
+}
+
+@keyframes fadeInContainer {
+  from {
+    opacity: 0;
+    transform: translateY(12px); /* optional slide-up effect */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-container {
+  opacity: 0;
+  background-color: rgba(83, 78, 78, 0.9);
+  border-radius: 20px;
+  padding: 5px;
+  padding-left: 20px;
+  animation: fadeInContainer 0.5s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.message-container.removing {
+  animation: fadeOut 0.5s ease-in forwards;
 }

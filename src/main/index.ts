@@ -105,7 +105,11 @@ app.whenReady().then(() => {
 
     const ret = globalShortcut.register("CommandOrControl+X", () => {
         if (mainWindow) {
-            mainWindow.focus();
+            if (mainWindow.isMinimized()) {
+                mainWindow.restore()
+            } else {
+                mainWindow.minimize()
+            }
         }
     });
 

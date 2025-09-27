@@ -40,8 +40,8 @@ function App(): React.JSX.Element {
             addMessage(response);
         });
 
-        return () => {
-            if (!socket.current) return;
+    return () => {
+      if (!socket.current) return
 
             socket.current.disconnect();
         };
@@ -92,7 +92,11 @@ function App(): React.JSX.Element {
             </div>
 
             <div className="container">
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <form style={{ display: "flex", gap: 8, alignItems: "center" }} onSubmit={(e) => {
+                    e.preventDefault()
+
+                    sendMessage();
+                }}>
                     <div style={{ position: "relative", flex: 1 }}>
                         <input
                             type="text"
@@ -117,13 +121,19 @@ function App(): React.JSX.Element {
                     </div>
                     {isWorking ? (
                         <button
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.preventDefault()
+
                                 addMessage("Job cancelled");
+
+                                socket.current?.emit("abort");
+
                                 setIsWorking(false);
                             }}
                             className="cancel-btn"
                             aria-label="Cancel"
                             title="Cancel"
+                            type="button"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -138,10 +148,10 @@ function App(): React.JSX.Element {
                         </button>
                     ) : (
                         <button
-                            onClick={sendMessage}
                             className="send-btn"
                             aria-label="Send"
                             title="Send"
+                            type="submit"
                         >
                             <svg
                                 width="16"
@@ -155,7 +165,7 @@ function App(): React.JSX.Element {
                             </svg>
                         </button>
                     )}
-                </div>
+                </form>
             </div>
         </>
     );
