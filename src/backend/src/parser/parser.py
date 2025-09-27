@@ -123,11 +123,13 @@ def code_please(prompt: str, reassess_text : str = ""):
 
     content = content.replace("[instruction]", prompt)
     if reassess_text != "":
-        content += "\n"
-        content += "Your reassessment from last time is as follows: " + reassess_text + "\n"
+        content += """
+        IF THIS INSTRUCTION HAS ALREADY BEEN SATISFIED, COMPLETE RIGHT NOW.
+
+        Your reassessment from last time is as follows:
+        """
 
     pil_image = draw_grid_with_ids(pyautogui.screenshot())
-    pil_image.show()
 
     # 2. FIX: Convert the image from RGBA to RGB (dropping the transparency).
     #    This is REQUIRED before saving as a JPEG.
@@ -194,11 +196,11 @@ def parse_response(text : str):
             commands.append((Actions.WAIT, float(line.split(" ")[1])))
         elif line.split(" ")[0] == "REQUEST_MOVE":
             parts = line.split(" ")
-            commands.append((Actions.REQUEST_MOVE, (line.split(" ")[1], " ".join(line.split(" ")[2:]))))
+            commands.append((Actions.REQUEST_MOVE, (int(line.split(" ")[1]), " ".join(line.split(" ")[2:]))))
         elif line.split(" ")[0] == "MOUSE_DOWN":
             commands.append((Actions.MOUSE_DOWN, line.split(" ")[1]))
         elif line.split(" ")[0] == "MOUSE_UP":
-            commands.append((Actions.MOUSE_UP, None))
+            commands.append((Actions.MOUSE_UP, line.split(" ")[1]))
         elif line.split(" ")[0] == "TYPE":
             commands.append((Actions.TYPE, " ".join(line.split(" ")[1:])))
         elif line.split(" ")[0] == "KEY_DOWN":
@@ -265,7 +267,7 @@ class GUIClient:
             if not (isinstance(value, str)):
                 return False
         elif action == Actions.MOUSE_UP:
-            if value is not None:
+            if not isinstance(value, str):
                 return False
         elif action == Actions.TYPE:
             if not isinstance(value, str):
@@ -302,11 +304,13 @@ class GUIClient:
 
         if action == Actions.MOUSE_DOWN:
             if value.lower() == "left":
+                print("Mouse was clicked")
                 pyautogui.mouseDown(button='left')
             elif value.lower() == "right":
                 pyautogui.mouseDown(button='right')
         elif action == Actions.MOUSE_UP:
             if value.lower() == "left":
+                print("Mouse was released")
                 pyautogui.mouseUp(button='left')
             elif value.lower() == "right":
                 pyautogui.mouseUp(button='right')
@@ -328,6 +332,9 @@ class GUIClient:
 
             print(f"Moving to {coords}")
             pyautogui.moveTo(coords[0], coords[1], 0.3)
+
+            time.sleep(0.5)
+            print("Continuing")
         elif action == Actions.STOP:
             return -1
         elif action == Actions.COMPLETE:
@@ -342,9 +349,9 @@ class GUIClient:
 
 
 
-actions = parse_response(code_please("Click on the control center"))
+actions = parse_response(code_please("Sign out of my google account."))
 print(actions)
-t = GUIClient(actions, "Click on the control center")
+t = GUIClient(actions, "Sign out of my google account.")
 while (t.step() == 0):
     pass
 

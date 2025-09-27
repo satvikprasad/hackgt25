@@ -65,8 +65,6 @@ class Omni:
 
         plt.imshow(image_boxed)
 
-        image_boxed.show()
-
         return image_boxed, label_coordinates, (int(left), int(top)), (image.width, image.height)
 
     def detect_box(self, image: TImage, label_coordinates, offset: tuple[int, int], original_dim: tuple[int, int], object: str) -> tuple[int, int]:
