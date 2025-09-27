@@ -65,7 +65,7 @@ function App(): React.JSX.Element {
                 sendMessage()
               }
             }}
-            className="send-btn"
+            className={isWorking ? "cancel-btn" : "send-btn"}
             aria-label="Send"
             title="Send"
           >
@@ -77,10 +77,10 @@ function App(): React.JSX.Element {
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
-                style={{ color: '#ff4d4f' }}
+                style={{ color: '#000000ff' }}
               >
-                <path d="M6 6 L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M6 18 L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M6 6 L18 18" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                <path d="M6 18 L18 6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
               </svg>
             ) : (
               <svg
