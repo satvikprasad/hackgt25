@@ -2,5 +2,5 @@ Flask>=2.2,<3
 pillow
 pyautogui
 requests
-openai
+openai>=1.55.3
 python-dotenv
