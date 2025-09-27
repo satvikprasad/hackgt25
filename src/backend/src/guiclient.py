@@ -12,7 +12,7 @@ class Actions(Enum):
     KEY_UP = 6
     SCROLL_UP = 7
     SCROLL_DOWN = 8
-    REQUEST = 9
+    REQUEST_CLICK = 9
     STOP = 10
 
 class GUIClient:
@@ -46,8 +46,11 @@ class GUIClient:
         elif action in (Actions.SCROLL_UP, Actions.SCROLL_DOWN):
             if not isinstance(value, int):
                 return False
-        elif action in (Actions.REQUEST, Actions.STOP):
+        elif action in (Actions.STOP):
             if value is not None:
+                return False
+        elif action in (Actions.REQUEST):
+            if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], str)):
                 return False
         elif action == Actions.WAIT:
             if not (isinstance(value, (int, float)) and value >= 0):
