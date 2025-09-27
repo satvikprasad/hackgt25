@@ -29,7 +29,6 @@ function createWindow(): void {
         skipTaskbar: true,   // Hides the window from the taskbar
 
         alwaysOnTop: true,  
-        focusable: false,   // Allows clicks to pass through to windows below it
 
         movable: false,
         resizable: false,

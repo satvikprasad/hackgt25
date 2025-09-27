@@ -11,6 +11,7 @@ from io import BytesIO
 
 load_dotenv(f'{os.path.dirname(os.path.realpath(__file__))}/../../../../.env')
 
+
 from util.utils import get_som_labeled_img, check_ocr_box, get_caption_model_processor, get_yolo_model
 from ultralytics import YOLO
 from PIL import Image, ImageOps

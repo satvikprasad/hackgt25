@@ -18,6 +18,8 @@ client = OpenAI(
     api_key=os.getenv("OPEN_API_KEY")
 )
 
+from tesseractclient import click_text_percent
+
 from PIL import ImageDraw, ImageFont
 from PIL.Image import Image
 from PIL import Image
@@ -217,6 +219,8 @@ def parse_response(text : str):
             commands.append((Actions.COMPLETE, " ".join(line.split(" ")[1:])))
         elif line.split(" ")[0] == "STOP":
             commands.append((Actions.STOP, " ".join(line.split(" ")[1:])))
+        elif line.split(" ")[0] == "TEXT_MOVE":
+            commands.append((Actions.TEXT_MOVE, (int(line.split(" ")[1]), " ".join(line.split(" ")[2:]))))
 
     return commands
 
@@ -236,13 +240,15 @@ class Actions(Enum):
     COMPLETE = 10
     STOP = 11
 
+    TEXT_MOVE = 12
+
 class GUIClient:
 
     def __init__(self, socketio, commands : list[tuple[Actions, any]], content : str):
         self.socketio = socketio
+        self.omni = Omni()
         self.commands = commands
         self.content = content
-        self.omni = Omni()
 
         for i in range(len(self.commands)):
             if not self.verify(i):
@@ -293,6 +299,9 @@ class GUIClient:
                 return False
         elif action == Actions.WAIT:
             if not (isinstance(value, (int, float)) and value >= 0):
+                return False
+        elif action == Actions.TEXT_MOVE:
+            if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], str)):
                 return False
 
         return True
@@ -346,6 +355,8 @@ class GUIClient:
             cmds = parse_response(code_please(self.content, value))
             print("New commands:", cmds)
             self.append_commands(cmds)
+        elif action == Actions.TEXT_MOVE:
+            tesseractclient.click_text_percent(value[1], quadrant=value[0])
 
         self.index += 1
         return 0
