@@ -6,6 +6,7 @@ import pyautogui
 import time
 from enum import Enum
 import sys
+from omni import Omni
 
 load_dotenv("../../.env")
 
@@ -237,6 +238,7 @@ class GUIClient:
     def __init__(self, commands : list[tuple[Actions, any]], content : str):
         self.commands = commands
         self.content = content
+        self.omni = Omni()
 
         for i in range(len(self.commands)):
             if not self.verify(i):
@@ -280,7 +282,7 @@ class GUIClient:
             if not isinstance(value, str):
                 return False
         elif action == Actions.REQUEST_MOVE:
-            if not (isinstance(value, tuple) and len(value) == 3 and isinstance(value[0], int) and isinstance(value[1], str) and isinstance(value[2], str)):
+            if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], str)):
                 return False
         elif action == Actions.REASSESS:
             if not isinstance(value, str):
@@ -319,6 +321,12 @@ class GUIClient:
             pyautogui.scroll(-value)
         elif action == Actions.WAIT:
             pyautogui.sleep(value)
+        elif action == Actions.REQUEST_MOVE:
+            print("Requesting move....")
+            coords = self.omni.infer_coords(pyautogui.screenshot(), quadrant=value[0], entity=value[1])
+
+            print(f"Moving to {coords}")
+            pyautogui.moveTo(coords[0], coords[1], 0.3)
         elif action == Actions.STOP:
             return -1
         elif action == Actions.COMPLETE:
@@ -336,9 +344,14 @@ class GUIClient:
 
 
 
-
+"""
 actions = parse_response(code_please("Help me focus for an hour"))
 print(actions)
 t = GUIClient(actions, "Help me focus for an hour")
 while (t.step() == 0):
     pass
+"""
+
+actions = [Actions.REQUEST_MOVE, (3, "MacOS cntrol center button")]
+t = GUIClient(actions, "")
+t.step()
