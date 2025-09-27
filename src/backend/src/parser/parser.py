@@ -1,11 +1,15 @@
 import os
 import io
-import pyautogui
-import time
 import base64
 from dotenv import load_dotenv
+import pyautogui
+import time
+from enum import Enum
+import sys
 
 load_dotenv("../../.env")
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from openai import OpenAI
 
@@ -107,7 +111,7 @@ By looking at the image, respond in one line with an array of numbers that corre
             print(list_str[1:len(list_str) - 1])
 '''
 
-def code_please(prompt: str):
+def code_please(prompt: str, reassess_text : str = ""):
 
     content = ""
     try:
@@ -117,6 +121,9 @@ def code_please(prompt: str):
         pass
 
     content = content.replace("[instruction]", prompt)
+    if reassess_text != "":
+        content += "\n"
+        content += "Your reassessment from last time is as follows: " + reassess_text + "\n"
 
     pil_image = pyautogui.screenshot()
     
@@ -167,6 +174,7 @@ def code_please(prompt: str):
     )
 
     print(response.output[1].content[0].text)
+    return response.output[1].content[0].text
 
 
 def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
@@ -175,26 +183,162 @@ def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
 
     screen.crop((left, top, left + screen.width / 3, top + screen.height / 3))
 
-
-def parse_repsponse(text : str):
+def parse_response(text : str):
     lines = text.split("\n")
     commands = []
     for line in lines:
-        line = line.strip()
+        line = line.strip(" #")
         if line.split(" ")[0] == "WAIT":
             commands.append((Actions.WAIT, float(line.split(" ")[1])))
-        
+        elif line.split(" ")[0] == "REQUEST_MOVE":
+            parts = line.split(" ")
+            commands.append((Actions.REQUEST_MOVE, (line.split(" ")[1], " ".join(line.split(" ")[2:]))))
+        elif line.split(" ")[0] == "MOUSE_DOWN":
+            commands.append((Actions.MOUSE_DOWN, line.split(" ")[1]))
+        elif line.split(" ")[0] == "MOUSE_UP":
+            commands.append((Actions.MOUSE_UP, None))
+        elif line.split(" ")[0] == "TYPE":
+            commands.append((Actions.TYPE, " ".join(line.split(" ")[1:])))
+        elif line.split(" ")[0] == "KEY_DOWN":
+            commands.append((Actions.KEY_DOWN, line.split(" ")[1]))
+        elif line.split(" ")[0] == "KEY_UP":
+            commands.append((Actions.KEY_UP, line.split(" ")[1]))
+        elif line.split(" ")[0] == "SCROLL_UP":
+            commands.append((Actions.SCROLL_UP, int(line.split(" ")[1])))
+        elif line.split(" ")[0] == "SCROLL_DOWN":
+            commands.append((Actions.SCROLL_DOWN, int(line.split(" ")[1])))
+        elif line.split(" ")[0] == "REASSESS":
+            commands.append((Actions.REASSESS, " ".join(line.split(" ")[1:])))
+        elif line.split(" ")[0] == "COMPLETE":
+            commands.append((Actions.COMPLETE, " ".join(line.split(" ")[1:])))
+        elif line.split(" ")[0] == "STOP":
+            commands.append((Actions.STOP, " ".join(line.split(" ")[1:])))
+    
     return commands
 
-"""
-capture = pyautogui.screenshot()
 
-gridded_capture = draw_grid_with_ids(capture)
 
-gridded_capture.show()
+class Actions(Enum):
+    WAIT = 0
+    REQUEST_MOVE= 1
+    MOUSE_DOWN = 2
+    MOUSE_UP = 3
+    TYPE = 4
+    KEY_DOWN = 5
+    KEY_UP = 6
+    SCROLL_UP = 7
+    SCROLL_DOWN = 8
+    REASSESS = 9
+    COMPLETE = 10
+    STOP = 11
 
-omni_parse(gridded_capture, 9, "Blah", "blooh")
+class GUIClient:
 
-"""
-time.sleep(4)
-code_please("Take a photo of me")
+    def __init__(self, commands : list[tuple[Actions, any]], content : str):
+        self.commands = commands
+        self.content = content
+
+        for i in range(len(self.commands)):
+            if not self.verify(i):
+                raise ValueError(f"Invalid command at index {i}: {self.commands[i]}")
+
+        self.index = 0
+        self.repeat_count = 0
+
+    def append_commands(self, new_commands : list[tuple[Actions, any]]):
+        self.repeat_count += 1
+        for cmd in new_commands:
+            self.commands.append(cmd)
+            if not self.verify(len(self.commands) - 1):
+                raise ValueError(f"Invalid command at index {len(self.commands) - 1}: {cmd}")
+
+    def verify(self, index : int):
+        if index < 0 or index >= len(self.commands):
+            raise IndexError("Index out of range")
+
+        action, value = self.commands[index]        
+
+        if action == Actions.MOUSE_DOWN: #value = [(LEFT or RIGHT), (time)]
+            if not (isinstance(value, str)):
+                return False
+        elif action == Actions.MOUSE_UP:
+            if value is not None:
+                return False
+        elif action == Actions.TYPE:
+            if not isinstance(value, str):
+                return False
+        elif action in [Actions.KEY_DOWN, Actions.KEY_UP]:
+            if not isinstance(value, str):
+                return False
+        elif action in [Actions.SCROLL_UP, Actions.SCROLL_DOWN]:
+            if not isinstance(value, int):
+                return False
+        elif action == Actions.STOP:
+            if not isinstance(value, str):
+                return False
+        elif action == Actions.COMPLETE:
+            if not isinstance(value, str):
+                return False
+        elif action == Actions.REQUEST_MOVE:
+            if not (isinstance(value, tuple) and len(value) == 3 and isinstance(value[0], int) and isinstance(value[1], str) and isinstance(value[2], str)):
+                return False
+        elif action == Actions.REASSESS:
+            if not isinstance(value, str):
+                return False
+        elif action == Actions.WAIT:
+            if not (isinstance(value, (int, float)) and value >= 0):
+                return False
+        
+        return True
+
+    def step(self) -> int:
+        if self.index >= len(self.commands):
+            raise IndexError("No more commands to execute") 
+        
+        action, value = self.commands[self.index]
+
+        if action == Actions.MOUSE_DOWN:
+            if value.lower() == "left":
+                pyautogui.mouseDown(button='left')
+            elif value.lower() == "right":
+                pyautogui.mouseDown(button='right')
+        elif action == Actions.MOUSE_UP:
+            if value.lower() == "left":
+                pyautogui.mouseUp(button='left')
+            elif value.lower() == "right":
+                pyautogui.mouseUp(button='right')
+        elif action == Actions.TYPE:
+            pyautogui.typewrite(value, 0.1)
+        elif action == Actions.KEY_DOWN:
+            pyautogui.keyDown(value)
+        elif action == Actions.KEY_UP:
+            pyautogui.keyUp(value)
+        elif action == Actions.SCROLL_UP:
+            pyautogui.scroll(value)
+        elif action == Actions.SCROLL_DOWN:
+            pyautogui.scroll(-value)
+        elif action == Actions.WAIT:
+            pyautogui.sleep(value)
+        elif action == Actions.STOP:
+            return -1
+        elif action == Actions.COMPLETE:
+            return 1
+        elif action == Actions.REASSESS:
+            cmds = parse_response(code_please(self.content, value))
+            print("New commands:", cmds)
+            self.append_commands(cmds)
+
+        self.index += 1
+        return 0
+
+
+
+
+
+
+
+actions = parse_response(code_please("Help me focus for an hour"))
+print(actions)
+t = GUIClient(actions, "Help me focus for an hour")
+while (t.step() == 0):
+    pass
