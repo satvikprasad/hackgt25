@@ -1,6 +1,8 @@
 import os
-
+import io
 import pyautogui
+import time
+import base64
 from dotenv import load_dotenv
 
 load_dotenv("../../.env")
@@ -13,6 +15,7 @@ client = OpenAI(
 
 from PIL import ImageDraw, ImageFont
 from PIL.Image import Image
+from PIL import Image
 
 # from io import BytesIO
 # import base64
@@ -104,12 +107,86 @@ By looking at the image, respond in one line with an array of numbers that corre
             print(list_str[1:len(list_str) - 1])
 '''
 
+def code_please(prompt: str):
+
+    content = ""
+    try:
+        with open("./src/parser/prompt.txt", 'r', encoding='utf-8') as file:
+            content = file.read()
+    except Exception as e:
+        pass
+
+    content = content.replace("[instruction]", prompt)
+
+    pil_image = pyautogui.screenshot()
+    
+    # 2. FIX: Convert the image from RGBA to RGB (dropping the transparency).
+    #    This is REQUIRED before saving as a JPEG.
+    if pil_image.mode == 'RGBA':
+        # Create a white background image
+        background = Image.new('RGB', pil_image.size, (255, 255, 255))
+        # Paste the RGBA image onto the white background
+        background.paste(pil_image, (0, 0), pil_image)
+        # Use the new RGB image for saving
+        pil_image = background
+    
+    # If a simple conversion is preferred (which just removes the alpha channel):
+    # pil_image = pil_image.convert('RGB') 
+
+    # 3. Create an in-memory binary stream (buffer)
+    buffer = io.BytesIO()
+
+    # 4. Save the RGB Image to the buffer as a JPEG file.
+    pil_image.save(buffer, format='jpeg') # This will now work as pil_image is RGB
+
+    # 5. Get the bytes from the buffer
+    image_bytes = buffer.getvalue()
+
+    # 6. Encode the bytes to Base64
+    base64_encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+
+    # 7. Construct the final data URL string
+    image_url = f"data:image/jpeg;base64,{base64_encoded_image}"
+    response = client.responses.create(
+        model="gpt-5",
+        input = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "input_text",
+                        "text": content
+                    },
+                    {
+                        "type": "input_image",
+                        "image_url": image_url
+                    }
+                ]
+            }
+        ]
+    )
+
+    print(response.output[1].content[0].text)
+
+
 def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
     left = ((quadrant - 1) % 3) * screen.width / 3
     top = ((quadrant - 1) // 3) * screen.height / 3
 
     screen.crop((left, top, left + screen.width / 3, top + screen.height / 3))
 
+
+def parse_repsponse(text : str):
+    lines = text.split("\n")
+    commands = []
+    for line in lines:
+        line = line.strip()
+        if line.split(" ")[0] == "WAIT":
+            commands.append((Actions.WAIT, float(line.split(" ")[1])))
+        
+    return commands
+
+"""
 capture = pyautogui.screenshot()
 
 gridded_capture = draw_grid_with_ids(capture)
@@ -117,3 +194,7 @@ gridded_capture = draw_grid_with_ids(capture)
 gridded_capture.show()
 
 omni_parse(gridded_capture, 9, "Blah", "blooh")
+
+"""
+time.sleep(4)
+code_please("Take a photo of me")
