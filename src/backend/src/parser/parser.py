@@ -126,7 +126,8 @@ def code_please(prompt: str, reassess_text : str = ""):
         content += "\n"
         content += "Your reassessment from last time is as follows: " + reassess_text + "\n"
 
-    pil_image = pyautogui.screenshot()
+    pil_image = draw_grid_with_ids(pyautogui.screenshot())
+    pil_image.show()
 
     # 2. FIX: Convert the image from RGBA to RGB (dropping the transparency).
     #    This is REQUIRED before saving as a JPEG.
@@ -341,17 +342,9 @@ class GUIClient:
 
 
 
-
-
-
-"""
-actions = parse_response(code_please("Help me focus for an hour"))
+actions = parse_response(code_please("Click on the control center"))
 print(actions)
-t = GUIClient(actions, "Help me focus for an hour")
+t = GUIClient(actions, "Click on the control center")
 while (t.step() == 0):
     pass
-"""
 
-actions = [(Actions.REQUEST_MOVE, (3, "MacOS cntrol center button"))]
-t = GUIClient(actions, "")
-t.step()
