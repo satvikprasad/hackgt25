@@ -115,13 +115,8 @@ class Omni:
         screen_coord = ((x + width/2)*image.width - 50 + offset[0], (y + height/2)*image.height - 50 + offset[1])
         screen_coord = (screen_coord[0]/original_dim[0] * screen_width, screen_coord[1]/original_dim[1] * screen_height)
 
-        pyautogui.moveTo(screen_coord[0], screen_coord[1], 3)
-
         return screen_coord
 
     def infer_coords(self, image: TImage, quadrant: int, entity: str) -> tuple[int, int]:
         image, labels, offset, dims = omni.gen_boxes(image, quadrant)
         return omni.detect_box(image, labels, offset, dims, entity)
-
-omni = Omni()
-print(omni.infer_coords(pyautogui.screenshot(), 3, "Control center icon, positioned to the left of the dates, looks like two stacked toggles."))
