@@ -6,12 +6,12 @@ import pyautogui
 import time
 from enum import Enum
 import sys
-from omni import Omni
 
 load_dotenv("../../.env")
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
+from omni import Omni
 from openai import OpenAI
 
 client = OpenAI(
@@ -238,7 +238,8 @@ class Actions(Enum):
 
 class GUIClient:
 
-    def __init__(self, commands : list[tuple[Actions, any]], content : str):
+    def __init__(self, socketio, commands : list[tuple[Actions, any]], content : str):
+        self.socketio = socketio
         self.commands = commands
         self.content = content
         self.omni = Omni()
@@ -340,18 +341,11 @@ class GUIClient:
         elif action == Actions.COMPLETE:
             return 1
         elif action == Actions.REASSESS:
+            self.socketio.emit('reassess', { 'response': value })
+
             cmds = parse_response(code_please(self.content, value))
             print("New commands:", cmds)
             self.append_commands(cmds)
 
         self.index += 1
         return 0
-
-
-
-actions = parse_response(code_please("Sign out of my google account."))
-print(actions)
-t = GUIClient(actions, "Sign out of my google account.")
-while (t.step() == 0):
-    pass
-

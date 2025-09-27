@@ -7,19 +7,22 @@ from typing import Dict, Any
 import queue
 from flask import Response
 
+from parser.parser import GUIClient, code_please, parse_response
 
+from threading import Event
 
-def handle_message(req):
-	
-	print(req)
-	if not req.is_json:
-		return jsonify(error="Request must be {'text': '...'}"), 400
-	data = req.get_json()
-	if not isinstance(data, dict):
-		return jsonify(error="Request must be {'text': '...'}"), 400
-	if data.get("text") is None:
-		return jsonify(error="Request must be {'text': '...'}"), 400
-	text = data["text"]
+def handle_message(socketio, query_event: Event, message: str):
+    print(f"Handling message {message}")
 
-	
-	return jsonify(message="it is working"), 202
+    actions = parse_response(code_please(message))
+
+    t = GUIClient(socketio, actions, message)
+
+    while(t.step() == 0):
+        if not query_event.is_set():
+            socketio.emit('query_response', { 'status': 'aborted'})
+            return
+
+        pass
+
+    socketio.emit('query_response', { 'status': 'complete' })
