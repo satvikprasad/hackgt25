@@ -1,2 +1,2 @@
 # hackgt25
-*Aayush, Jonathan, Satvik, Parth*
+*Ayush, Jonathan, Satvik, Parth*
