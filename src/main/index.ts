@@ -9,11 +9,11 @@ let mainWindow: BrowserWindow | undefined
 
 function createWindow(): void {
   const winWidth = 900
-  const winHeight = 100
+  const winHeight = 300
 
   const display = screen.getPrimaryDisplay()
   const work = display.workArea
-  const bottomOffset = 12
+  const bottomOffset = 25
   const x = Math.round(work.x + (work.width - winWidth) / 2)
   const y = Math.round(work.y + work.height - winHeight - bottomOffset)
 
@@ -67,6 +67,26 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
+
+  ipcMain.on('resize-window', (_event, newHeight: number) => {
+    if (mainWindow) {
+      const display = screen.getPrimaryDisplay()
+      const work = display.workArea
+      const bottomOffset = 12
+      const winWidth = mainWindow.getSize()[0] // Get current width
+
+      // Calculate the new Y position to keep the bottom edge fixed
+      const newY = Math.round(work.y + work.height - newHeight - bottomOffset)
+
+      // Set the new size and position simultaneously
+      mainWindow.setBounds({
+        x: mainWindow.getPosition()[0], // Keep X the same
+        y: newY,
+        width: winWidth,
+        height: newHeight,
+      })
+    }
+  })
 
   app.on('activate', function() {
     // On macOS it's common to re-create a window in the app when the

@@ -6,9 +6,9 @@ function App(): React.JSX.Element {
 
   const [text, setText] = useState<string>('')
   const [isWorking, setIsWorking] = useState<boolean>(false)
+  const [messages, setMessages] = useState<{ id: number; text: string, removing?: boolean }[]>([])
 
   const BACKEND = 'http://127.0.0.1:5000'
-
 
   const sendMessage = async (): Promise<void> => {
     if (!text) return
@@ -20,9 +20,12 @@ function App(): React.JSX.Element {
       })
 
       if (res.status === 202) {
-        //const data = await res.json()
+        const data = await res.json()
         // store a string representation so React doesn't try to render an object
         // disable input/button while job runs
+
+        addMessage(`Job started: ${data.message}`)
+
         setIsWorking(true)
         setText('')
       } else {
@@ -36,14 +39,43 @@ function App(): React.JSX.Element {
     }
   }
 
+  const addMessage = (msg: string): void => {
+    const id = Date.now()
+    setMessages((msgs) => [...msgs, { id, text: msg }])
+
+    // Auto-remove with fade-out after 5s
+    setTimeout(() => {
+      setMessages((msgs) =>
+        msgs.map((m) => (m.id === id ? { ...m, removing: true } : m))
+      )
+      setTimeout(() => {
+        setMessages((msgs) => msgs.filter((m) => m.id !== id))
+      }, 500)
+    }, 5000)
+  }
+
   return (
     <>
+      <div style={{ justifyContent: 'flex-end' }}>
+        {messages.length > 0 &&
+          messages.map((msg) => (
+            <div
+              className={`message-container ${msg.removing ? "removing" : ""}`}
+              style={{ marginBottom: '12px' }}
+              key={msg.id}
+            >
+              <p>{msg.text}</p>
+            </div>
+          ))}
+      </div>
+
       <div className="container">
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <div style={{ position: 'relative', flex: 1 }}>
             <input
               type="text"
-              placeholder={isWorking ? "" : "Type something here..."}
+              className="input-bar-container"
+              placeholder={isWorking ? '' : 'Type something here...'}
               value={text}
               onChange={(e) => setText((e.target as HTMLInputElement).value)}
               style={{ width: '100%', boxSizing: 'border-box' }}
@@ -57,24 +89,42 @@ function App(): React.JSX.Element {
               </div>
             )}
           </div>
-          <button
-            onClick={sendMessage}
-            className="send-btn"
-            aria-label="Send"
-            title="Send"
-            disabled={!text || isWorking}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
+          {isWorking ? (
+            <button
+              onClick={() => {
+
+                addMessage('Job cancelled')
+                setIsWorking(false)
+              }}
+              className="cancel-btn"
+              aria-label="Cancel"
+              title="Cancel"
             >
-              <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" />
+              </svg>
+            </button>
+          ) : (
+            <button onClick={sendMessage} className="send-btn" aria-label="Send" title="Send">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </>
