@@ -12,7 +12,9 @@ class Actions(Enum):
     KEY_UP = 6
     SCROLL_UP = 7
     SCROLL_DOWN = 8
-    STOP = 10
+    REASSESS = 9
+    COMPLETE = 10
+    STOP = 11
 
 class GUIClient:
 
@@ -46,8 +48,14 @@ class GUIClient:
         elif action in (Actions.STOP):
             if value is not None:
                 return False
+        elif action in (Action.COMPLETE):
+            if value is not None:
+                return False
         elif action in (Actions.REQUEST_MOVE):
             if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], str)):
+                return False
+        elif action in (Actions.REASSESS):
+            if value is not None:
                 return False
         elif action == Actions.WAIT:
             if not (isinstance(value, (int, float)) and value >= 0):
@@ -55,7 +63,7 @@ class GUIClient:
         
         return True
 
-    def step(self):
+    def step(self) -> int:
         if self.index >= len(self.commands):
             raise IndexError("No more commands to execute") 
         
@@ -88,10 +96,12 @@ class GUIClient:
         elif action == Actions.REQUEST:
             pass # Placeholder for future implementation
         elif action == Actions.STOP:
-            return True
+            return -1
+        elif action == Actions.COMPLETE:
+            return 1
         
         self.index += 1
-        return False
+        return 0
 
 
 
@@ -108,7 +118,7 @@ commands = [
 
 client = GUIClient(commands)
 
-while not client.step():
+while not client.step() == 0:
     pass
 
 
