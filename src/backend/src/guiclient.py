@@ -4,7 +4,7 @@ from enum import Enum
 
 class Actions(Enum):
     WAIT = 0
-    MOUSE_MOVE = 1
+    REQUEST_MOVE= 1
     MOUSE_DOWN = 2
     MOUSE_UP = 3
     TYPE = 4
@@ -12,7 +12,6 @@ class Actions(Enum):
     KEY_UP = 6
     SCROLL_UP = 7
     SCROLL_DOWN = 8
-    REQUEST_CLICK = 9
     STOP = 10
 
 class GUIClient:
@@ -31,10 +30,8 @@ class GUIClient:
             raise IndexError("Index out of range")
 
         action, value = self.commands[index]        
-        if action == Actions.MOUSE_MOVE:
-            if not (isinstance(value, tuple) and len(value) == 2 and all(isinstance(v, int) for v in value)):
-                return False
-        elif action in (Actions.MOUSE_DOWN, Actions.MOUSE_UP): #value = [(LEFT or RIGHT), (time)]
+
+        if action in (Actions.MOUSE_DOWN, Actions.MOUSE_UP): #value = [(LEFT or RIGHT), (time)]
             if not (isinstance(value, str)):
                 return False
         elif action == Actions.TYPE:
@@ -49,7 +46,7 @@ class GUIClient:
         elif action in (Actions.STOP):
             if value is not None:
                 return False
-        elif action in (Actions.REQUEST):
+        elif action in (Actions.REQUEST_MOVE):
             if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], str)):
                 return False
         elif action == Actions.WAIT:
