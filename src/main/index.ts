@@ -26,6 +26,11 @@ function createWindow(): void {
         show: false,
         transparent: true,
         autoHideMenuBar: true,
+        skipTaskbar: true,   // Hides the window from the taskbar
+
+        alwaysOnTop: true,  
+        focusable: false,   // Allows clicks to pass through to windows below it
+
         movable: false,
         resizable: false,
         maximizable: false,
@@ -76,7 +81,10 @@ app.whenReady().then(() => {
 
 const ret = globalShortcut.register('CommandOrControl+X', () => {
     if (mainWindow) {
-        mainWindow.focus()
+      if(mainWindow.isMinimized())
+        mainWindow.restore();
+      else
+        mainWindow.minimize();
     }
 })
 
