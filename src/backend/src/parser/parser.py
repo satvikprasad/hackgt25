@@ -1,7 +1,9 @@
 import os
 import io
 import base64
+from threading import Event
 from dotenv import load_dotenv
+import gevent
 import pyautogui
 import time
 from enum import Enum
@@ -180,7 +182,6 @@ def code_please(prompt: str, reassess_text : str = ""):
     print(response.output[1].content[0].text)
     return response.output[1].content[0].text
 
-
 def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
     left = ((quadrant - 1) % 3) * screen.width / 3
     top = ((quadrant - 1) // 3) * screen.height / 3
@@ -237,7 +238,10 @@ class Actions(Enum):
     STOP = 11
 
 class GUIClient:
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     def __init__(self, socketio, commands : list[tuple[Actions, any]], content : str):
         self.socketio = socketio
         self.commands = commands
@@ -332,16 +336,20 @@ class GUIClient:
             coords = self.omni.infer_coords(pyautogui.screenshot(), quadrant=value[0], entity=value[1])
 
             print(f"Moving to {coords}")
+
             pyautogui.moveTo(coords[0], coords[1], 0.3)
 
             time.sleep(0.5)
-            print("Continuing")
         elif action == Actions.STOP:
             return -1
         elif action == Actions.COMPLETE:
             return 1
         elif action == Actions.REASSESS:
             self.socketio.emit('reassess', { 'response': value })
+<<<<<<< Updated upstream
+=======
+            gevent.sleep(0)
+>>>>>>> Stashed changes
 
             cmds = parse_response(code_please(self.content, value))
             print("New commands:", cmds)

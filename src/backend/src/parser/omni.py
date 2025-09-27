@@ -1,7 +1,12 @@
+import sys
+import os
+
+# Append path to OmniParser module relative to this file
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../OmniParser')))
+
 from typing import Dict
 import pyautogui
 
-import os
 import io
 import base64
 
