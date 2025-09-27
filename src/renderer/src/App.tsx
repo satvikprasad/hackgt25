@@ -58,22 +58,42 @@ function App(): React.JSX.Element {
             )}
           </div>
           <button
-            onClick={sendMessage}
+            onClick={() => {
+              if(isWorking) {
+                setIsWorking(false)
+              } else {
+                sendMessage()
+              }
+            }}
             className="send-btn"
             aria-label="Send"
             title="Send"
-            disabled={!text || isWorking}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
-            </svg>
+            {isWorking ? (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                style={{ color: '#ff4d4f' }}
+              >
+                <path d="M6 6 L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M6 18 L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
