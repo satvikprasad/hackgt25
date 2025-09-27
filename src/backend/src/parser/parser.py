@@ -224,7 +224,7 @@ def parse_response(text : str):
 
 class Actions(Enum):
     WAIT = 0
-    REQUEST_MOVE= 1
+    REQUEST_MOVE = 1
     MOUSE_DOWN = 2
     MOUSE_UP = 3
     TYPE = 4

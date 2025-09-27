@@ -1,52 +1,52 @@
 import '../globals.css'
 import { useState, useRef, useEffect } from 'react'
 
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client'
 
 function App(): React.JSX.Element {
-    // const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-    const socket = useRef<Socket | null>(null)
+  // const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  const socket = useRef<Socket | null>(null)
 
-    const [text, setText] = useState<string>('')
-    const [isWorking, setIsWorking] = useState<boolean>(false)
+  const [text, setText] = useState<string>('')
+  const [isWorking, setIsWorking] = useState<boolean>(false)
 
-    const BACKEND = 'http://127.0.0.1:5000'
+  const BACKEND = 'http://127.0.0.1:5000'
 
-    useEffect(() => {
-        socket.current = io('http://127.0.0.1:5000')
+  useEffect(() => {
+    socket.current = io('http://127.0.0.1:5000')
 
-            socket.current.connect()
+    socket.current.connect()
 
-        socket.current.on('connect', () => {
-            console.log('Connected to server')
-        });
+    socket.current.on('connect', () => {
+      console.log('Connected to server')
+    })
 
-        socket.current.on('query_response', ({status}: {status: "complete" | "aborted"}) => {
-            switch (status) {
-                case "aborted":
-                case "complete":
-                    setIsWorking(false);
-                    break;
-            }
-        });
+    socket.current.on('query_response', ({ status }: { status: 'complete' | 'aborted' }) => {
+      switch (status) {
+        case 'aborted':
+        case 'complete':
+          setIsWorking(false)
+          break
+      }
+    })
 
-        socket.current.on('reassess', ({ response } : {response: string}) => {
-            alert(response)
-        });
+    socket.current.on('reassess', ({ response }: { response: string }) => {
+      alert(response)
+    })
 
-        return () => {
-            if (!socket.current) return;
+    return () => {
+      if (!socket.current) return
 
-            socket.current.disconnect()
-        }
-    }, [])
+      socket.current.disconnect()
+    }
+  }, [])
 
-    const sendMessage = async (): Promise<void> => {
-        socket.current?.emit('query', text)
+  const sendMessage = async (): Promise<void> => {
+    socket.current?.emit('query', text)
 
-        setIsWorking(true)
+    setIsWorking(true)
 
-        /**
+    /**
         if (!text) return
             try {
                 const res = await fetch(`${BACKEND}/message`, {
@@ -72,51 +72,51 @@ function App(): React.JSX.Element {
                 alert(e.toString())
             }
         **/
-    }
+  }
 
-    return (
-        <>
-            <div className="container">
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ position: 'relative', flex: 1 }}>
-                        <input
-                        type="text"
-                        placeholder={isWorking ? "" : "Type something here..."}
-                        value={text}
-                        onChange={(e) => setText((e.target as HTMLInputElement).value)}
-                        style={{ width: '100%', boxSizing: 'border-box' }}
-                        disabled={isWorking}
-                        />
-                        {isWorking && (
-                            <div className="dots-overlay" aria-hidden="true">
-                            <span className="dot" />
-                            <span className="dot" />
-                            <span className="dot" />
-                            </div>
-                        )}
-                    </div>
-                    <button
-                    onClick={sendMessage}
-                    className="send-btn"
-                    aria-label="Send"
-                    title="Send"
-                    disabled={!text || isWorking}
-                    >
-                        <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true"
-                        >
-                            <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </>
-    )
+  return (
+    <>
+      <div className="container">
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input
+              type="text"
+              placeholder={isWorking ? '' : 'Type something here...'}
+              value={text}
+              onChange={(e) => setText((e.target as HTMLInputElement).value)}
+              style={{ width: '100%', boxSizing: 'border-box' }}
+              disabled={isWorking}
+            />
+            {isWorking && (
+              <div className="dots-overlay" aria-hidden="true">
+                <span className="dot" />
+                <span className="dot" />
+                <span className="dot" />
+              </div>
+            )}
+          </div>
+          <button
+            onClick={sendMessage}
+            className="send-btn"
+            aria-label="Send"
+            title="Send"
+            disabled={!text || isWorking}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </>
+  )
 }
 
 export default App
