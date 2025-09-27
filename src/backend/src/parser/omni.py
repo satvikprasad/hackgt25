@@ -80,7 +80,7 @@ class Omni:
         imgb64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
         response = self.openai_client.responses.create(
-            model="gpt-5",
+            model="gpt-5-mini",
             input=[{
                 "role": "user",
                 "content": [
