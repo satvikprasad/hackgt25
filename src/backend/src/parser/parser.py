@@ -127,7 +127,7 @@ def code_please(prompt: str, reassess_text : str = ""):
         content += "Your reassessment from last time is as follows: " + reassess_text + "\n"
 
     pil_image = pyautogui.screenshot()
-    
+
     # 2. FIX: Convert the image from RGBA to RGB (dropping the transparency).
     #    This is REQUIRED before saving as a JPEG.
     if pil_image.mode == 'RGBA':
@@ -137,9 +137,9 @@ def code_please(prompt: str, reassess_text : str = ""):
         background.paste(pil_image, (0, 0), pil_image)
         # Use the new RGB image for saving
         pil_image = background
-    
+
     # If a simple conversion is preferred (which just removes the alpha channel):
-    # pil_image = pil_image.convert('RGB') 
+    # pil_image = pil_image.convert('RGB')
 
     # 3. Create an in-memory binary stream (buffer)
     buffer = io.BytesIO()
@@ -214,7 +214,7 @@ def parse_response(text : str):
             commands.append((Actions.COMPLETE, " ".join(line.split(" ")[1:])))
         elif line.split(" ")[0] == "STOP":
             commands.append((Actions.STOP, " ".join(line.split(" ")[1:])))
-    
+
     return commands
 
 
@@ -258,7 +258,7 @@ class GUIClient:
         if index < 0 or index >= len(self.commands):
             raise IndexError("Index out of range")
 
-        action, value = self.commands[index]        
+        action, value = self.commands[index]
 
         if action == Actions.MOUSE_DOWN: #value = [(LEFT or RIGHT), (time)]
             if not (isinstance(value, str)):
@@ -290,13 +290,13 @@ class GUIClient:
         elif action == Actions.WAIT:
             if not (isinstance(value, (int, float)) and value >= 0):
                 return False
-        
+
         return True
 
     def step(self) -> int:
         if self.index >= len(self.commands):
-            raise IndexError("No more commands to execute") 
-        
+            raise IndexError("No more commands to execute")
+
         action, value = self.commands[self.index]
 
         if action == Actions.MOUSE_DOWN:
@@ -352,6 +352,6 @@ while (t.step() == 0):
     pass
 """
 
-actions = [Actions.REQUEST_MOVE, (3, "MacOS cntrol center button")]
+actions = [(Actions.REQUEST_MOVE, (3, "MacOS cntrol center button"))]
 t = GUIClient(actions, "")
 t.step()

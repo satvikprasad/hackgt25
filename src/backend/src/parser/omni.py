@@ -118,5 +118,5 @@ class Omni:
         return screen_coord
 
     def infer_coords(self, image: TImage, quadrant: int, entity: str) -> tuple[int, int]:
-        image, labels, offset, dims = omni.gen_boxes(image, quadrant)
-        return omni.detect_box(image, labels, offset, dims, entity)
+        image, labels, offset, dims = self.gen_boxes(image, quadrant)
+        return self.detect_box(image, labels, offset, dims, entity)
