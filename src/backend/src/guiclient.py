@@ -33,8 +33,11 @@ class GUIClient:
 
         action, value = self.commands[index]        
 
-        if action in (Actions.MOUSE_DOWN, Actions.MOUSE_UP): #value = [(LEFT or RIGHT), (time)]
+        if action in (Actions.MOUSE_DOWN): #value = [(LEFT or RIGHT), (time)]
             if not (isinstance(value, str)):
+                return False
+        elif action in (Actions.MOUSE_UP):
+            if value is not None:
                 return False
         elif action == Actions.TYPE:
             if not isinstance(value, str):
