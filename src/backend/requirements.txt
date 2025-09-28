@@ -8,3 +8,4 @@ python-dotenv
 gevent
 gevent-websocket
 pytesseract
+sounddevice
