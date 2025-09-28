@@ -21,6 +21,12 @@ client = OpenAI(
     api_key=os.getenv("OPEN_API_KEY")
 )
 
+import google.generativeai as genai
+genai.configure(api_key="AIzaSyCHVZWbvt6un-wldobLVOySGR-hpuXOEXI")
+
+model = genai.GenerativeModel("gemini-2.5-pro")
+
+
 from tesseractclient import click_text_percent, image_embeddings, normalize_data
 
 from PIL import ImageDraw, ImageFont
@@ -131,7 +137,7 @@ def code_please(prompt: str, reassess_text : str = ""):
         content += """
         IF THIS INSTRUCTION HAS ALREADY BEEN SATISFIED, COMPLETE RIGHT NOW.
 
-        Your reassessment from last time is as follows:
+        Your reassessments from previous instructions are as follows:
         """
 
     img = pyautogui.screenshot()
@@ -171,6 +177,19 @@ def code_please(prompt: str, reassess_text : str = ""):
     text_embeddings = normalize_data()
 
     image_url = f"data:image/jpeg;base64,{base64_encoded_image}"
+
+    response = model.generate_content([
+            {"role": "user", "parts": [
+                {"text": content},
+                {"text": text_embeddings},
+                {"inline_data": {
+                    "mime_type": "image/png",  # or image/jpeg
+                    "data": image_bytes
+                }}
+            ]}
+        ])
+
+    """
     response = client.responses.create(
         model="gpt-5",
         input = [
@@ -193,10 +212,12 @@ def code_please(prompt: str, reassess_text : str = ""):
             }
         ]
     )
+    """
 
     print("Programming complete")
-    print(response.output[1].content[0].text)
-    return response.output[1].content[0].text
+    return response.text
+    #print(response.output[1].content[0].text)
+    #return response.output[1].content[0].text
 
 def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
     left = ((quadrant - 1) % 3) * screen.width / 3
@@ -258,6 +279,7 @@ class Actions(Enum):
 class GUIClient:
     def __init__(self, socketio, commands : list[tuple[Actions, any]], content : str):
         self.socketio = socketio
+        self.reassesses = []
         self.commands = commands
         self.content = content
 
@@ -370,7 +392,8 @@ class GUIClient:
             self.socketio.emit('reassess', { 'response': value })
             gevent.sleep(0)
 
-            cmds = parse_response(code_please(self.content, value))
+            self.reassesses.append(value)
+            cmds = parse_response(code_please(self.content, str(self.reassesses)))
             print("New commands:", cmds)
             self.append_commands(cmds)
         elif action == Actions.TEXT_MOVE:
