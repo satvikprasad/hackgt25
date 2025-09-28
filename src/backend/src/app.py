@@ -18,8 +18,6 @@ def create_app() -> Flask:
 app = create_app()
 socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173"])
 
-
-
 # SocketIO setup
 @socketio.on('connect')
 def handle_connect():
