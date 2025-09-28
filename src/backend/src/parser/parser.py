@@ -2,6 +2,7 @@ import os
 import io
 import json
 import base64
+import subprocess
 from threading import Event
 from dotenv import load_dotenv
 import gevent
@@ -258,6 +259,8 @@ def parse_response(text : str):
             commands.append((Actions.STOP, " ".join(line.split(" ")[1:])))
         elif line.split(" ")[0] == "TEXT_MOVE":
             commands.append((Actions.TEXT_MOVE, (int(line.split(" ")[1]), int(line.split(" ")[2]))))
+        elif line.split(" ")[0] == "EMAIL":
+            commands.append((Actions.EMAIL, (line.split(" ")[1], " ".join(line.split(" ")[2:]))))
 
     return commands
 
@@ -277,12 +280,15 @@ class Actions(Enum):
 
     TEXT_MOVE = 12
 
+    EMAIL = 13
+
 class GUIClient:
     def __init__(self, socketio, commands : list[tuple[Actions, any]], content : str):
         self.socketio = socketio
         self.reassesses = []
         self.commands = commands
         self.content = content
+        self.mastra_process = None
 
         for i in range(len(self.commands)):
             if not self.verify(i):
@@ -336,6 +342,9 @@ class GUIClient:
                 return False
         elif action == Actions.TEXT_MOVE:
             if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], int)):
+                return False
+        elif action == Actions.EMAIL:
+            if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], str) and isinstance(value[1], str)):
                 return False
 
         return True
@@ -399,6 +408,11 @@ class GUIClient:
             self.append_commands(cmds)
         elif action == Actions.TEXT_MOVE:
             pyautogui.moveTo(value[0], value[1], 0.3)
+        elif action == Actions.EMAIL:
+            mastra_wd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../../mastra")
+            cmd = f"cd {mastra_wd} && npx tsx ./manualEmail.ts \"email {value[0]} about {value[1]}\" &"
+            print(cmd)
+            os.system(cmd)
 
         self.index += 1
         return 0
