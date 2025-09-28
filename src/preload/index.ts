@@ -1,5 +1,10 @@
-import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from "electron";
+
+contextBridge.exposeInMainWorld("electronAPI", {
+  setIgnore: (ignore: boolean) => ipcRenderer.send("set-ignore", ignore)
+});
+
 
 // Custom APIs for renderer
 const api = {}
