@@ -1,3 +1,5 @@
+model_name = "GEMINI"
+
 import os
 import io
 import json
@@ -101,7 +103,7 @@ By looking at the image, respond in one line with an array of numbers that corre
     print(prompt)
 
     response = client.responses.create(
-            model="gpt-5",
+            model="gpt-5-turbo",
             input=[{
                 "role": "user",
                 "content": [
@@ -133,7 +135,8 @@ def code_please(prompt: str, reassess_text : str = ""):
     except Exception as e:
         pass
 
-    content = content.replace("[instruction]", prompt)
+    content += "Your instruction is: " + prompt + ". Do only EXACTLY what you are told to do, nothing more, nothing less."
+
     if reassess_text != "":
         content += """
         IF THIS INSTRUCTION HAS ALREADY BEEN SATISFIED, COMPLETE RIGHT NOW.
@@ -179,46 +182,48 @@ def code_please(prompt: str, reassess_text : str = ""):
 
     image_url = f"data:image/jpeg;base64,{base64_encoded_image}"
 
-    response = model.generate_content([
-            {"role": "user", "parts": [
-                {"text": content},
-                {"text": text_embeddings},
-                {"inline_data": {
-                    "mime_type": "image/png",  # or image/jpeg
-                    "data": image_bytes
-                }}
-            ]}
-        ])
-
-    """
-    response = client.responses.create(
-        model="gpt-5",
-        input = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": content
-                    },
-                    {
-                        "type": "input_text",
-                        "text": text_embeddings
-                    },
-                    {
-                        "type": "input_image",
-                        "image_url": image_url
-                    }
-                ]
-            }
-        ]
-    )
-    """
+    if model_name == "GEMINI":
+        response = model.generate_content([
+                {"role": "user", "parts": [
+                    {"text": content},
+                    {"text": text_embeddings},
+                    {"inline_data": {
+                        "mime_type": "image/png",  # or image/jpeg
+                        "data": image_bytes
+                    }}
+                ]}
+            ])
+    else:
+        response = client.responses.create(
+            model="gpt-5",
+            input = [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": content
+                        },
+                        {
+                            "type": "input_text",
+                            "text": text_embeddings
+                        },
+                        {
+                            "type": "input_image",
+                            "image_url": image_url
+                        }
+                    ]
+                }
+            ]
+        )
 
     print("Programming complete")
-    return response.text
-    #print(response.output[1].content[0].text)
-    #return response.output[1].content[0].text
+
+    if model_name == "GEMINI":
+        return response.text
+    else: 
+        print(response.output[1].content[0].text)
+        return response.output[1].content[0].text
 
 def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
     left = ((quadrant - 1) % 3) * screen.width / 3
