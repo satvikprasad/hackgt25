@@ -10,11 +10,16 @@ function App(): React.JSX.Element {
 
   const [text, setText] = useState<string>('')
   const [isWorking, setIsWorking] = useState<boolean>(false)
+<<<<<<< HEAD
   const [messages, setMessages] = useState<{ id: number; text: string; removing?: boolean }[]>([])
+=======
+  const [messages, setMessages] = useState<{ id: number; text: string, removing?: boolean }[]>([])
+>>>>>>> 80214e1 (t)
 
   useEffect(() => {
     socket.current = io('http://127.0.0.1:5000')
 
+<<<<<<< HEAD
     socket.current.connect()
 
     socket.current.on('connect', () => {
@@ -43,9 +48,12 @@ function App(): React.JSX.Element {
     }
   }, [])
 
+=======
+>>>>>>> 80214e1 (t)
   const sendMessage = async (): Promise<void> => {
     socket.current?.emit('query', text)
 
+<<<<<<< HEAD
     setIsWorking(true)
   }
 
@@ -66,6 +74,42 @@ function App(): React.JSX.Element {
   useEffect(() => {
     console.log(messages)
   }, [messages])
+=======
+      if (res.status === 202) {
+        const data = await res.json()
+        // store a string representation so React doesn't try to render an object
+        // disable input/button while job runs
+
+        addMessage(`Job started: ${data.message}`)
+
+        setIsWorking(true)
+        setText('')
+      } else {
+        const err = await res.json().catch(() => ({}))
+        console.error('sendMessage error', res.status, err)
+        alert('Failed to start job: ' + (err.error || res.status))
+      }
+    } catch (e) {
+      console.error(e)
+      alert(e.toString())
+    }
+  }
+
+  const addMessage = (msg: string): void => {
+    const id = Date.now()
+    setMessages((msgs) => [...msgs, { id, text: msg }])
+
+    // Auto-remove with fade-out after 5s
+    setTimeout(() => {
+      setMessages((msgs) =>
+        msgs.map((m) => (m.id === id ? { ...m, removing: true } : m))
+      )
+      setTimeout(() => {
+        setMessages((msgs) => msgs.filter((m) => m.id !== id))
+      }, 500)
+    }, 5000)
+  }
+>>>>>>> 80214e1 (t)
 
   return (
     <>
@@ -73,6 +117,7 @@ function App(): React.JSX.Element {
         {messages.length > 0 &&
           messages.map((msg) => (
             <div
+<<<<<<< HEAD
               className={`message-container ${msg.removing ? 'removing' : ''}`}
               style={{ marginBottom: '12px' }}
               key={msg.id}
@@ -80,6 +125,13 @@ function App(): React.JSX.Element {
               <p>
                 <b>Gloo:</b> {msg.text}
               </p>
+=======
+              className={`message-container ${msg.removing ? "removing" : ""}`}
+              style={{ marginBottom: '12px' }}
+              key={msg.id}
+            >
+              <p>{msg.text}</p>
+>>>>>>> 80214e1 (t)
             </div>
           ))}
       </div>
@@ -113,6 +165,7 @@ function App(): React.JSX.Element {
           </div>
           {isWorking ? (
             <button
+<<<<<<< HEAD
               onClick={(e) => {
                 e.preventDefault()
 
@@ -120,12 +173,20 @@ function App(): React.JSX.Element {
 
                 socket.current?.emit('abort')
 
+=======
+              onClick={() => {
+
+                addMessage('Job cancelled')
+>>>>>>> 80214e1 (t)
                 setIsWorking(false)
               }}
               className="cancel-btn"
               aria-label="Cancel"
               title="Cancel"
+<<<<<<< HEAD
               type="button"
+=======
+>>>>>>> 80214e1 (t)
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -139,7 +200,11 @@ function App(): React.JSX.Element {
               </svg>
             </button>
           ) : (
+<<<<<<< HEAD
             <button className="send-btn" aria-label="Send" title="Send" type="submit">
+=======
+            <button onClick={sendMessage} className="send-btn" aria-label="Send" title="Send">
+>>>>>>> 80214e1 (t)
               <svg
                 width="16"
                 height="16"
@@ -152,7 +217,11 @@ function App(): React.JSX.Element {
               </svg>
             </button>
           )}
+<<<<<<< HEAD
         </form>
+=======
+        </div>
+>>>>>>> 80214e1 (t)
       </div>
     </>
   )

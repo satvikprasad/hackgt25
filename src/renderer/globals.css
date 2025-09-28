@@ -24,6 +24,12 @@ input {
     width: 100%;
 }
 
+p {
+  font-size: 13pt;
+  color: white;
+  width: 100%;
+}
+
 input:focus {
     outline: none;
 }
@@ -64,11 +70,26 @@ input:focus::placeholder {
     transform: translateY(-1px);
 }
 
-.send-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
+.cancel-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,#d40614,#f14968);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+
+.cancel-btn:hover {
+  transform: translateY(-1px);
+}
+
+
+
 
 .dots-overlay {
     position: absolute;
