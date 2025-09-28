@@ -1,4 +1,4 @@
-model_name = "GEMINI"
+model_name = "GPT"
 
 import os
 import io
@@ -221,7 +221,7 @@ def code_please(prompt: str, reassess_text : str = ""):
 
     if model_name == "GEMINI":
         return response.text
-    else: 
+    else:
         print(response.output[1].content[0].text)
         return response.output[1].content[0].text
 
