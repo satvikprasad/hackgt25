@@ -1,3 +1,4 @@
+import { ChevronDoubleRightIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import "../globals.css";
 import { useState, useRef, useEffect, useCallback } from "react";
 
@@ -57,8 +58,6 @@ function App(): React.JSX.Element {
         const id = Date.now();
         setMessages((msgs) => [...msgs, { id, text: msg }]);
 
-        // Auto-remove with fade-out after 5s
-        /**
         setTimeout(() => {
             setMessages((msgs) =>
                         msgs.map((m) => (m.id === id ? { ...m, removing: true } : m))
@@ -67,7 +66,6 @@ function App(): React.JSX.Element {
                            setMessages((msgs) => msgs.filter((m) => m.id !== id))
                        }, 500)
         }, 5000)
-        **/
     }, []);
 
     useEffect(() => {
@@ -108,7 +106,7 @@ function App(): React.JSX.Element {
                             onChange={(e) =>
                                 setText((e.target as HTMLInputElement).value)
                             }
-                            style={{ width: "100%", boxSizing: "border-box" }}
+                            style={{ width: "100%", boxSizing: "border-box", color: isWorking ? "rgb(180, 180, 180)" : "white" }}
                             disabled={isWorking}
                         />
                         {isWorking && (
@@ -153,16 +151,9 @@ function App(): React.JSX.Element {
                             title="Send"
                             type="submit"
                         >
-                            <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                xmlns="http://www.w3.org/2000/svg"
-                                aria-hidden="true"
-                            >
-                                <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
-                            </svg>
+                            <ChevronDoubleRightIcon style={{
+                                height: "20px",
+                            }}/>
                         </button>
                     )}
                 </form>
