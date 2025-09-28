@@ -1,5 +1,6 @@
 import os
 import io
+import json
 import base64
 from threading import Event
 from dotenv import load_dotenv
@@ -20,7 +21,7 @@ client = OpenAI(
     api_key=os.getenv("OPEN_API_KEY")
 )
 
-from tesseractclient import click_text_percent
+from tesseractclient import click_text_percent, image_embeddings, normalize_data
 
 from PIL import ImageDraw, ImageFont
 from PIL.Image import Image
@@ -133,7 +134,11 @@ def code_please(prompt: str, reassess_text : str = ""):
         Your reassessment from last time is as follows:
         """
 
-    pil_image = draw_grid_with_ids(pyautogui.screenshot())
+    img = pyautogui.screenshot()
+
+    pil_image = draw_grid_with_ids(img)
+
+    #pil_image.show()
 
     # 2. FIX: Convert the image from RGBA to RGB (dropping the transparency).
     #    This is REQUIRED before saving as a JPEG.
@@ -162,6 +167,9 @@ def code_please(prompt: str, reassess_text : str = ""):
 
     # 7. Construct the final data URL string
     print("Starting programming")
+
+    text_embeddings = normalize_data()
+
     image_url = f"data:image/jpeg;base64,{base64_encoded_image}"
     response = client.responses.create(
         model="gpt-5",
@@ -172,6 +180,10 @@ def code_please(prompt: str, reassess_text : str = ""):
                     {
                         "type": "input_text",
                         "text": content
+                    },
+                    {
+                        "type": "input_text",
+                        "text": text_embeddings
                     },
                     {
                         "type": "input_image",
@@ -223,7 +235,7 @@ def parse_response(text : str):
         elif line.split(" ")[0] == "STOP":
             commands.append((Actions.STOP, " ".join(line.split(" ")[1:])))
         elif line.split(" ")[0] == "TEXT_MOVE":
-            commands.append((Actions.TEXT_MOVE, (int(line.split(" ")[1]), " ".join(line.split(" ")[2:]))))
+            commands.append((Actions.TEXT_MOVE, (int(line.split(" ")[1]), int(line.split(" ")[2]))))
 
     return commands
 
@@ -300,7 +312,7 @@ class GUIClient:
             if not (isinstance(value, (int, float)) and value >= 0):
                 return False
         elif action == Actions.TEXT_MOVE:
-            if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], str)):
+            if not (isinstance(value, tuple) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], int)):
                 return False
 
         return True
@@ -356,7 +368,8 @@ class GUIClient:
             print("New commands:", cmds)
             self.append_commands(cmds)
         elif action == Actions.TEXT_MOVE:
-            click_text_percent(value[1], quadrant=value[0])
+            pyautogui.moveTo(value[0], value[1], 0.3)
 
         self.index += 1
         return 0
+
