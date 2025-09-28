@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { ChevronDoubleRightIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import "../globals.css";
 import { useState, useRef, useEffect, useCallback } from "react";
-=======
-import '../globals.css'
-import { useState, useRef, useEffect, useCallback } from 'react'
->>>>>>> 1e7766eb6bef10121e5f9e945855c2ae899b17a5
 
 import { io, Socket } from 'socket.io-client'
 
