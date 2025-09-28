@@ -137,7 +137,7 @@ def code_please(prompt: str, reassess_text : str = ""):
         content += """
         IF THIS INSTRUCTION HAS ALREADY BEEN SATISFIED, COMPLETE RIGHT NOW.
 
-        Your reassessment from last time is as follows:
+        Your reassessments from previous instructions are as follows:
         """
 
     img = pyautogui.screenshot()
@@ -191,7 +191,7 @@ def code_please(prompt: str, reassess_text : str = ""):
 
     """
     response = client.responses.create(
-        model="gpt-5-nano",
+        model="gpt-5",
         input = [
             {
                 "role": "user",
@@ -279,6 +279,7 @@ class Actions(Enum):
 class GUIClient:
     def __init__(self, socketio, commands : list[tuple[Actions, any]], content : str):
         self.socketio = socketio
+        self.reassesses = []
         self.commands = commands
         self.content = content
 
@@ -391,7 +392,8 @@ class GUIClient:
             self.socketio.emit('reassess', { 'response': value })
             gevent.sleep(0)
 
-            cmds = parse_response(code_please(self.content, value))
+            self.reassesses.append(value)
+            cmds = parse_response(code_please(self.content, str(self.reassesses)))
             print("New commands:", cmds)
             self.append_commands(cmds)
         elif action == Actions.TEXT_MOVE:
