@@ -222,6 +222,7 @@ def code_please(prompt: str, reassess_text : str = ""):
 def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
     left = ((quadrant - 1) % 3) * screen.width / 3
     top = ((quadrant - 1) // 3) * screen.height / 3
+    #FREE ME
 
     screen.crop((left, top, left + screen.width / 3, top + screen.height / 3))
 
