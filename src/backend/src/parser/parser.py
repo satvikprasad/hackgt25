@@ -21,6 +21,12 @@ client = OpenAI(
     api_key=os.getenv("OPEN_API_KEY")
 )
 
+import google.generativeai as genai
+genai.configure(api_key="AIzaSyCHVZWbvt6un-wldobLVOySGR-hpuXOEXI")
+
+model = genai.GenerativeModel("gemini-2.5-pro")
+
+
 from tesseractclient import click_text_percent, image_embeddings, normalize_data
 
 from PIL import ImageDraw, ImageFont
@@ -171,8 +177,21 @@ def code_please(prompt: str, reassess_text : str = ""):
     text_embeddings = normalize_data()
 
     image_url = f"data:image/jpeg;base64,{base64_encoded_image}"
+
+    response = model.generate_content([
+            {"role": "user", "parts": [
+                {"text": content},
+                {"text": text_embeddings},
+                {"inline_data": {
+                    "mime_type": "image/png",  # or image/jpeg
+                    "data": image_bytes
+                }}
+            ]}
+        ])
+
+    """
     response = client.responses.create(
-        model="gpt-5",
+        model="gpt-5-nano",
         input = [
             {
                 "role": "user",
@@ -193,10 +212,12 @@ def code_please(prompt: str, reassess_text : str = ""):
             }
         ]
     )
+    """
 
     print("Programming complete")
-    print(response.output[1].content[0].text)
-    return response.output[1].content[0].text
+    return response.text
+    #print(response.output[1].content[0].text)
+    #return response.output[1].content[0].text
 
 def omni_parse(screen: Image, quadrant: int, object: str, position_desc: str):
     left = ((quadrant - 1) % 3) * screen.width / 3
