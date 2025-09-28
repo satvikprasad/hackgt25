@@ -1,12 +1,7 @@
-import sys
-import os
-
-# Append path to OmniParser module relative to this file
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../OmniParser')))
-
 from typing import Dict
 import pyautogui
 
+import os
 import io
 import base64
 
@@ -117,3 +112,6 @@ class Omni:
     def infer_coords(self, image: TImage, quadrant: int, entity: str) -> tuple[int, int]:
         image, labels, offset, dims = self.gen_boxes(image, quadrant)
         return self.detect_box(image, labels, offset, dims, entity)
+
+omni = Omni()
+print("Omni is setup")

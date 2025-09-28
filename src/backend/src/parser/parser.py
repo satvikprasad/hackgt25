@@ -13,7 +13,7 @@ load_dotenv("../../.env")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
-from omni import Omni
+import omni 
 from openai import OpenAI
 
 client = OpenAI(
@@ -161,6 +161,7 @@ def code_please(prompt: str, reassess_text : str = ""):
     base64_encoded_image = base64.b64encode(image_bytes).decode('utf-8')
 
     # 7. Construct the final data URL string
+    print("Starting programming")
     image_url = f"data:image/jpeg;base64,{base64_encoded_image}"
     response = client.responses.create(
         model="gpt-5",
@@ -181,6 +182,7 @@ def code_please(prompt: str, reassess_text : str = ""):
         ]
     )
 
+    print("Programming complete")
     print(response.output[1].content[0].text)
     return response.output[1].content[0].text
 
@@ -244,7 +246,6 @@ class Actions(Enum):
 class GUIClient:
     def __init__(self, socketio, commands : list[tuple[Actions, any]], content : str):
         self.socketio = socketio
-        self.omni = Omni()
         self.commands = commands
         self.content = content
 
@@ -336,7 +337,7 @@ class GUIClient:
             pyautogui.sleep(value)
         elif action == Actions.REQUEST_MOVE:
             print("Requesting move....")
-            coords = self.omni.infer_coords(pyautogui.screenshot(), quadrant=value[0], entity=value[1])
+            coords = omni.omni.infer_coords(pyautogui.screenshot(), quadrant=value[0], entity=value[1])
 
             print(f"Moving to {coords}")
 

@@ -35,6 +35,7 @@ function createWindow(): void {
         autoHideMenuBar: true,
         movable: false,
         resizable: false,
+        alwaysOnTop: true,
         maximizable: false,
         fullscreenable: false,
         ...(process.platform === "linux" ? { icon } : {}),
