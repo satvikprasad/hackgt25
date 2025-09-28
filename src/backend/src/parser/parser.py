@@ -14,7 +14,7 @@ load_dotenv("../../.env")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
-import omni 
+import omni
 from openai import OpenAI
 
 client = OpenAI(
@@ -378,8 +378,14 @@ class GUIClient:
 
             time.sleep(0.5)
         elif action == Actions.STOP:
+            self.socketio.emit("error", { "error": value })
+            gevent.sleep(0)
+
             return -1
         elif action == Actions.COMPLETE:
+            self.socketio.emit("complete", { "message": value })
+            gevent.sleep(0)
+
             return 1
         elif action == Actions.REASSESS:
             self.socketio.emit('reassess', { 'response': value })
