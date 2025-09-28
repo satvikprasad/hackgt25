@@ -69,7 +69,7 @@ class Omni:
 
     def detect_box(self, image: TImage, label_coordinates, offset: tuple[int, int], original_dim: tuple[int, int], object: str) -> tuple[int, int]:
         prompt = f"""
-        This is an image showing a portion of the user's desktop, with relevant interactable buttons outlined and labelled with their ids. The label for a bounding box is located above the bounding box, in the same color as the border. Your job is to identify which one of these bounding boxes contains {object}. Respond with a single number, which should be the correct bounding box's id. Your response should only be a single number. You are not allowed to fail.
+        This is an image showing a portion of the user's desktop, with relevant interactable buttons outlined and labelled with their ids. The label for a bounding box is located above the bounding box, in the same color as the border. Your job is to identify which one of these bounding boxes contains {object}. Respond with a single number, which should be the correct bounding box's id. Your response should only be a single number.
         """
 
         buffered = BytesIO()

@@ -24,7 +24,6 @@ This is a command designed to help you move the cursor to a specified location o
 {text} MUST be a SINGULAR word. Choose the word carefully so that it isn't commonly appeared in the screenshot. For example, do not choose words like "a" or "and", which can appear multiple tiems.
 For example, if you were disabling "Do not disturb", a good choice would be "disturb" as it is not repeated in the screenshot.
 
-
 # MOUSE_DOWN {key} Press the mouse down. {key} can take on either “LEFT” or “RIGHT
 # MOUSE_UP {key}
 Lift the mouse up. {key} can take on either “LEFT” or “RIGHT”
