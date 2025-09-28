@@ -31,11 +31,16 @@ def handle_connect():
     emit('response', {'data': 'Connected to server'})
 
 def handle_message(message: str):
-    if 'email' in message:
-        os.system('cd ../../../mastra')
-        os.system(f'npx tsx ./manualEmail.ts "{message}"')
-        return
-    
+    # if 'email' in message:
+    #     mastra_wd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../mastra")
+
+    #    os.system(f'cd {mastra_wd} && npx tsx ./manualEmail.ts "{message}"')
+
+    #     socketio.emit("complete", { "message": f"Succesfully completed email job using Mastra: {message}"})
+    #     socketio.emit('query_response', { 'status': 'complete' })
+    #     gevent.sleep(0)
+    #     return
+
     actions = parse_response(code_please(message))
 
     t = GUIClient(socketio, actions, message)
