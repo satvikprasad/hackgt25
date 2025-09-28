@@ -30,6 +30,12 @@ p {
   width: 100%;
 }
 
+p {
+  font-size: 13pt;
+  color: white;
+  width: 100%;
+}
+
 input:focus {
     outline: none;
 }
@@ -85,11 +91,8 @@ input:focus::placeholder {
 }
 
 .cancel-btn:hover {
-  transform: translateY(-1px);
+  transform: scale(1.1);
 }
-
-
-
 
 .dots-overlay {
     position: absolute;
