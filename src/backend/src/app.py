@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, make_response
 from flask_socketio import SocketIO, send, emit
+import os
 
 import threading
 from parser.parser import parse_response, code_please, GUIClient
@@ -30,6 +31,11 @@ def handle_connect():
     emit('response', {'data': 'Connected to server'})
 
 def handle_message(message: str):
+    if 'email' in message:
+        os.system('cd ../../../mastra')
+        os.system(f'npx tsx ./manualEmail.ts "{message}"')
+        return
+    
     actions = parse_response(code_please(message))
 
     t = GUIClient(socketio, actions, message)

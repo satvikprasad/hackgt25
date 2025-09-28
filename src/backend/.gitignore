@@ -1,3 +1,4 @@
 src/__pycache__
 src/parser/__pycache__
 .env
+./venv/
