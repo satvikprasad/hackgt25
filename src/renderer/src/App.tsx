@@ -22,6 +22,11 @@ function App(): React.JSX.Element {
   >([]);
 
   useEffect(() => {
+      window.electronAPI.setIgnore(isWorking);
+    }, [isWorking]);
+
+
+  useEffect(() => {
     socket.current = io("http://127.0.0.1:5000");
 
     socket.current.connect();
