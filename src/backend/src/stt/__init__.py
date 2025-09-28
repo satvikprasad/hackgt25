@@ -23,11 +23,16 @@ class Transcriber:
         self.stream = None
         self.recording_thread = None
 
-    def begin_recording(self, bytes_io: BytesIO):
+        self.file = None
+
+    def begin_recording(self):
         """Starts recording audio and saves it to a BytesIO object."""
         if self.recording:
             print("Already recording!")
             return
+
+        self.file = BytesIO()
+        self.file.name = "audio.wav"
 
         self.recording = True
         self.audio_queue = queue.Queue()
@@ -41,7 +46,7 @@ class Transcriber:
 
         def recording_worker():
             """Worker function to handle audio recording in a separate thread."""
-            with wave.open(bytes_io, mode="wb") as wf:
+            with wave.open(self.file, mode="wb") as wf:
                 wf.setnchannels(1)
                 wf.setsampwidth(2)
                 wf.setframerate(44100)
@@ -97,13 +102,17 @@ class Transcriber:
 
         self.audio_queue = None
 
-    def transcribe(self, bytes_io: BytesIO):
+    def transcribe(self):
         """Transcribes the audio from the BytesIO object using OpenAI's Whisper model."""
-        bytes_io.seek(0)
+        if self.file == None:
+            print("Failed to fetch audio recording")
+            return
+
+        self.file.seek(0)
         try:
             transcription = self.client.audio.transcriptions.create(
                 model="whisper-1",
-                file=bytes_io,
+                file=self.file,
                 response_format="text"
             )
             print("Transcription:", transcription)

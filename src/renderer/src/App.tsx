@@ -1,3 +1,4 @@
+import { MicrophoneIcon } from "@heroicons/react/16/solid";
 import "../globals.css";
 import { useState, useRef, useEffect, useCallback } from "react";
 
@@ -34,6 +35,15 @@ function App(): React.JSX.Element {
             },
         );
 
+        socket.current.on(
+            "transcribed_prompt",
+            ({ prompt } : { prompt : string }) => {
+                setText(prompt)
+
+                sendMessage(prompt)
+            }
+        );
+
         socket.current.on("reassess", ({ response }: { response: string }) => {
             console.log(response);
 
@@ -47,8 +57,8 @@ function App(): React.JSX.Element {
         };
     }, []);
 
-    const sendMessage = async (): Promise<void> => {
-        socket.current?.emit("query", text);
+    const sendMessage = async (message: string): Promise<void> => {
+        socket.current?.emit("query", message);
 
         setIsWorking(true);
     };
@@ -67,9 +77,7 @@ function App(): React.JSX.Element {
         }, 5000);
     }, []);
 
-    useEffect(() => {
-        console.log(messages);
-    }, [messages]);
+    const [recording, setRecording] = useState(false);
 
     return (
         <>
@@ -94,9 +102,26 @@ function App(): React.JSX.Element {
                     onSubmit={(e) => {
                         e.preventDefault();
 
-                        sendMessage();
+                        sendMessage(text);
                     }}
                 >
+                    <button className="mic-btn" type="button" style={{
+                        color: !recording ? "#eeeeee" : "#ff5c85"
+                    }} onClick={(e) => {
+                        e.preventDefault();
+
+                        if (recording) {
+                            setRecording(false);
+
+                            socket.current?.emit("end-recording");
+                        } else {
+                            setRecording(true);
+
+                            socket.current?.emit("begin-recording");
+                        }
+                    }}>
+                        <MicrophoneIcon className="icon" />
+                    </button>
                     <div style={{ position: "relative", flex: 1 }}>
                         <input
                             type="text"
@@ -104,7 +129,7 @@ function App(): React.JSX.Element {
                             placeholder={
                                 isWorking ? "" : "Type something here..."
                             }
-                            value={text}
+                            value={recording ? "Press to stop recording..." : text}
                             onChange={(e) =>
                                 setText((e.target as HTMLInputElement).value)
                             }

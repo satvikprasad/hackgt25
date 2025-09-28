@@ -6,8 +6,13 @@ from parser.parser import parse_response, code_please, GUIClient
 
 import gevent
 
+from stt import Transcriber
+
+from io import BytesIO
 
 stop_query = threading.Event()
+
+transcriber = Transcriber()
 
 def create_app() -> Flask:
     """Create and configure the Flask app."""
@@ -17,8 +22,6 @@ def create_app() -> Flask:
 
 app = create_app()
 socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173"])
-
-
 
 # SocketIO setup
 @socketio.on('connect')
@@ -45,6 +48,18 @@ def handle_query(message):
 def handle_abort():
     stop_query.set()
     pass
+
+@socketio.on('begin-recording')
+def handle_begin_recording():
+    transcriber.begin_recording()
+
+@socketio.on('end-recording')
+def handle_end_recording():
+    transcriber.end_recording()
+
+    prompt = transcriber.transcribe()
+
+    socketio.emit('transcribed_prompt', { 'prompt' : prompt })
 
 if __name__ == "__main__":
     socketio.run(app, host="127.0.0.1", port=5000, debug=True)
