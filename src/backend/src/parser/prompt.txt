@@ -22,9 +22,9 @@ This is a command designed to help you move the cursor to a specified object. Th
 # TEXT_MOVE {x} {y}
 This is a command designed to help you move the cursor to some text that IS ALREADY ON the screen. You have also been provided a JSON of all text elements on the screen and their positions. You can use these in context to find certain texts and move the mouse to a specified position.
 For example, if you want to click a button called "Do not disturb", you can look for the tokens "Do", "not", and "disturb" in the JSON and use their positions to find relatively where you should move the mouse to.
-{x} and {y} both take on any number. 
+{x} and {y} both take on any number.
 
-# MOUSE_DOWN {key} 
+# MOUSE_DOWN {key}
 Press the mouse down. {key} can take on either “LEFT” or “RIGHT"
 
 # MOUSE_UP {key}
@@ -44,6 +44,12 @@ Simulates scrolling up by a certain {amount}. Be careful of the position of your
 
 # SCROLL_DOWN {amount}
 Simulates scrolling down by a certain {amount}. Be careful of the position of your cursor.
+
+# EMAIL {address} {descriptive_content}
+Emails person at {address} with content described by {descriptive_content}.
+
+{address} should be an email address formatted like 'jcheng2025@gmail.com'
+{descriptive_content} should be a description of the email like 'write about cats that love to fly in the tone of a vampire'
 
 # STOP {message}
 Call this command to stop control. Send a message back to explain what the user needs to do to continue or what went wrong.
