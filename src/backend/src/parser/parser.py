@@ -362,6 +362,9 @@ class GUIClient:
 
             return -1
         elif action == Actions.COMPLETE:
+            self.socketio.emit("complete", { "message": value })
+            gevent.sleep(0)
+
             return 1
         elif action == Actions.REASSESS:
             self.socketio.emit('reassess', { 'response': value })

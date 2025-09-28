@@ -7,7 +7,7 @@ import { io, Socket } from "socket.io-client";
 interface Message {
   id: number;
   text: string;
-  type: "message" | "error";
+  type: "message" | "error" | "complete";
   removing?: boolean;
 };
 
@@ -58,6 +58,13 @@ function App(): React.JSX.Element {
       }
     );
 
+    socket.current.on(
+      "complete",
+      ({ message }: { message: string }) => {
+        addMessage(message, "complete")
+      }
+    )
+
     socket.current.on("reassess", ({ response }: { response: string }) => {
       console.log(response);
 
@@ -77,11 +84,11 @@ function App(): React.JSX.Element {
     setIsWorking(true);
   };
 
-  const addMessage = useCallback((msg: string, type: "message" | "error" = "message"): void => {
+  const addMessage = useCallback((msg: string, type: "message" | "error" | "complete" = "message"): void => {
     const id = Date.now();
     setMessages((msgs) => [...msgs, { id, text: msg, type }]);
 
-    if (type == "error") return;
+    if (type != "message") return;
 
     setTimeout(() => {
       setMessages((msgs) =>
@@ -99,47 +106,62 @@ function App(): React.JSX.Element {
     <>
       <div style={{ justifyContent: "flex-end" }}>
         {messages.length > 0 &&
-          messages.map((msg) => (
-            <div
-              className={`message-container ${msg.removing ? "removing" : ""} ${msg.type == "error" ? "error": ""}`}
-              style={{ marginBottom: "12px", backgroundColor: msg.type == "error" ? "rgba(255, 0, 0, 0.7)" : "rgba(83, 78, 78, 0.9)" }}
-              key={msg.id}
-              onClick={() => {
-                if (msg.type != "error") return;
+          messages.map((msg) => {
+            let backgroundColor = "rgba(83, 78, 78, 0.9)"
 
-                setMessages((msgs) => {
-                  return msgs.reduce((acc, item) => {
-                    if (item.id != msg.id) {
-                      acc.push(item)
-                    } else {
-                      const copy = structuredClone(item)
-                      copy.removing = true;
+            switch (msg.type) {
+              case "message":
+                break;
+              case "error":
+                backgroundColor = "rgba(255, 0, 0, 0.7)"
+                break;
+              case "complete":
+                backgroundColor = "rgba(79, 171, 103, 0.7)"
+                break;
+            }
 
-                      acc.push(copy)
-                    }
+            return (
+              <div
+                className={`message-container ${msg.removing ? "removing" : ""} ${msg.type == "error" ? "error" : ""}`}
+                style={{ marginBottom: "12px", backgroundColor: backgroundColor }}
+                key={msg.id}
+                onClick={() => {
+                  if (msg.type == "message") return;
 
-                    return acc;
-                  }, new Array<Message>());
-                })
-
-                setTimeout(() => {
                   setMessages((msgs) => {
                     return msgs.reduce((acc, item) => {
                       if (item.id != msg.id) {
                         acc.push(item)
+                      } else {
+                        const copy = structuredClone(item)
+                        copy.removing = true;
+
+                        acc.push(copy)
                       }
 
                       return acc;
                     }, new Array<Message>());
                   })
-                }, 500);
-              }}
-            >
-              <p>
-                <b>Gloo:</b> {msg.text}
-              </p>
-            </div>
-          ))}
+
+                  setTimeout(() => {
+                    setMessages((msgs) => {
+                      return msgs.reduce((acc, item) => {
+                        if (item.id != msg.id) {
+                          acc.push(item)
+                        }
+
+                        return acc;
+                      }, new Array<Message>());
+                    })
+                  }, 500);
+                }}
+              >
+                <p>
+                  <b>Gloo:</b> {msg.text}
+                </p>
+              </div>
+            )
+          })}
       </div>
 
       <div className="container">
