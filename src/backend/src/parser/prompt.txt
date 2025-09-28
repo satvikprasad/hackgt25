@@ -20,9 +20,9 @@ This is a command designed to help you move the cursor to a specified object. Th
 “Spotify icon in taskbar, represented as a bright green circle with three curved black lines stacked inside, resembling radio waves, all centered against the circular green background”
 
 # TEXT_MOVE {quadrant} {text}
-This is a command designed to help you move the cursor to a specified location of text. The first argument is the number/id of the quadrant that the text is situated in.
-{text} MUST be a SINGULAR word. Choose the word carefully so that it isn't commonly appeared in the screenshot. For example, do not choose words like "a" or "and", which can appear multiple tiems.
-For example, if you were disabling "Do not disturb", a good choice would be "disturb" as it is not repeated in the screenshot.
+This is a command designed to help you move the cursor to a specified location of text. The first argument is the number/id of the quadrant that the text is situated in.  Quadrant’s MUST be exact, so whenever you call REQUEST_MOVE, you must search the user’s screen image for the target text and ensure that the selected quadrant contains the target text.
+{text} MUST be a SINGULAR word. Choose the word carefully so that it isn't commonly appeared in the region. For example, do not choose words like "a" or "and", which can appear multiple tiems.
+For example, if you were disabling "Do not disturb", a good choice would be "disturb" as it is not repeated in the region.
 
 # MOUSE_DOWN {key} Press the mouse down. {key} can take on either “LEFT” or “RIGHT
 # MOUSE_UP {key}
@@ -58,7 +58,7 @@ Here are rules YOU MUST FOLLOW:
 3. Also, make sure you are REASSESSing often. Usually after traversing to a new site or clicking a button. End a command set after a REASSESS
 4. Do not use OSASCRIPT
 5. PRIORITIZE the use of KEYBOARD SHORTCUTS and TEXT_MOVE. !!ONLY USE REQUEST_MOVE WHEN ABSOLUTELY NECESSARY!!
-6. Keep note the keyboard shortcut of the spotlight: CMD+SPACE
+6. Keep note the keyboard shortcut of the spotlight to quickly go to browser: CMD+SPACE -> google chrome
 7. Do not be afraid to STOP when necessary.
 
 
