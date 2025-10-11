@@ -7,3 +7,11 @@ Built by Satvik, Jonathan, Ayush, and Parth
 Promptly is a prompt-based agentic interface for your computer, and is capable of performing complex tasks in succession thanks to a feedback-driven event loop, and powerful object detection CV models that scan your screen periodically (all CV models are run locally).
 
 This was made possible by the fantastic pretrained Yolo11n weights in Microsoft's OmniParser project, and the RICO dataset. Currently, inference is still a little slow when using GPT-5, while Gemini is a lot faster (~20s for a single task), at the cost of accuracy.
+
+#### What has Promptly succesfully done without user input?
+- Ordered 500 cans of Celsius from Amazon.
+- Cancelled the previously mentioned order XD.
+- Completed a GATech assignment on Canvas.
+- Waited for an email to appear in my inbox, and replied accordingly.
+- Opened VSCode and wrote a Python script to find a specific file in my system.
+- Disabled/enabled a bunch of MacOS settings, options in Control Centre, etc...
